@@ -39,7 +39,7 @@ print(f"Janela temporal: {WINDOW_SIZE} dias")
 
 # 3. FUNÇÕES AUXILIARES
 
-def ciar_janelas(data, window_size):
+def criar_janelas(data, window_size):
   #Cria sequências de janelas temporais
   X, y = [], []
   for i in range(len(data) - window_size):
@@ -50,9 +50,159 @@ def ciar_janelas(data, window_size):
 def criar_modelo_lstm(window_size):
   # Constói modelo LSTM
   model = Sequential([
-      LSTM(50, activation='tanh', input_shape=(window_size, 1))
+      LSTM(50, activation='tanh', input_shape=(window_size, 1)),
+      Dense(1)
   ])
-  model.compile(otimizer='adam', loss='mse')
+  model.compile(optimizer='adam', loss='mse')
   return model
 
 print('Funções criadas!')
+
+# 4. LOOP PRINCIPAL PARA CADA AÇÃO
+resultados = {}
+
+for ticker in TICKERS:
+    print(f"\n{'='*50}")
+    print(f"PROCESSANDO: {ticker}")
+    print(f"{'='*50}")
+
+    # 4.1 Coleta dos dados
+    df = yf.download(ticker, start=START_DATE, progress=False)
+    serie = df[['Close']].dropna()
+
+    print(f"Dados coletados: {len(serie)} dias")
+    print(f"Período: {serie.index[0].date()} até {serie.index[-1].date()}")
+
+    # 4.2 Visualização da série
+    plt.figure(figsize=(12,4))
+    plt.plot(serie.index, serie['Close'])
+    plt.title(f'{ticker} - Preço de Fechamento Histórico')
+    plt.xlabel('Data')
+    plt.ylabel('Preço (US$/R$)')
+    plt.grid(True, alpha=0.3)
+    plt.show()
+
+    # 4.3 Normalização
+    scaler = MinMaxScaler(feature_range=(0,1))
+    serie_scaled = scaler.fit_transform(serie.values)
+
+    # 4.4 Criação das janelas
+    X, y = criar_janelas(serie_scaled, WINDOW_SIZE)
+    print(f"   Shape X: {X.shape}, Shape y: {y.shape}")
+
+    # 4.5 Divisão treino/teste
+    split = int(TRAIN_SPLIT * len(X))
+    X_train, X_test = X[:split], X[split:]
+    y_train, y_test = y[:split], y[split:]
+    print(f"   Treino: {len(X_train)} amostras, Teste: {len(X_test)} amostras")
+
+    # 4.6 Construção e treinamento do modelo
+    model = criar_modelo_lstm(WINDOW_SIZE)
+
+    early_stop = EarlyStopping(
+        monitor='val_loss',
+        patience=10,
+        restore_best_weights=True,
+        verbose=0
+    )
+
+    history = model.fit(
+        X_train, y_train,
+        batch_size=32,
+        epochs=50,
+        validation_split=0.2,
+        callbacks=[early_stop],
+        verbose=0
+    )
+    print(f"Modelo treinado!")
+
+    # 4.7 Avaliação
+    y_pred = model.predict(X_test, verbose=0)
+
+    y_test_inv = scaler.inverse_transform(y_test)
+    y_pred_inv = scaler.inverse_transform(y_pred)
+
+    rmse = np.sqrt(mean_squared_error(y_test_inv, y_pred_inv))
+    print(f"RMSE: {rmse:.2f}")
+
+    # 4.8 Visualização das previsões
+    plt.figure(figsize=(12,4))
+    datas_teste = serie.index[split+WINDOW_SIZE:]
+    plt.plot(datas_teste, y_test_inv, label='Real', linewidth=2)
+    plt.plot(datas_teste, y_pred_inv, label='Previsto', linewidth=2, alpha=0.8)
+    plt.title(f'{ticker} - Previsão vs Real (Últimos {len(y_test)} dias)')
+    plt.xlabel('Data')
+    plt.ylabel('Preço (US$/R$)')
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.show()
+
+    # 4.9 Previsão próximo dia
+    ultima_janela = serie_scaled[-WINDOW_SIZE:].reshape(1, WINDOW_SIZE, 1)
+    next_pred_scaled = model.predict(ultima_janela, verbose=0)
+    next_price = scaler.inverse_transform(next_pred_scaled)[0,0]
+    current_price = serie['Close'].iloc[-1].item()
+    variacao = ((next_price - current_price) / current_price) * 100
+
+    print(f"Preço atual: {current_price:.2f}")
+    print(f"Previsão próximo dia: {next_price:.2f}")
+    print(f"Variação esperada: {variacao:+.2f}%")
+
+    # Armazenar resultados
+    resultados[ticker] = {
+        'RMSE': rmse,
+        'Preço_Atual': current_price,
+        'Previsão_Próximo_Dia': next_price,
+        'Variação_%': variacao,
+        'Dias_Histórico': len(serie)
+    }
+
+# 5. RESUMO COMPARATIVO
+print("\n" + "="*70)
+print("RESUMO COMPARATIVO DAS 5 AÇÕES")
+print("="*70)
+
+df_resultados = pd.DataFrame(resultados).T
+df_resultados = df_resultados.round(2)
+print(df_resultados)
+
+# Gráfico comparativo de RMSE
+plt.figure(figsize=(10,5))
+plt.bar(df_resultados.index, df_resultados['RMSE'])
+plt.title('Comparação de RMSE entre as Ações')
+plt.xlabel('Ação')
+plt.ylabel('RMSE')
+plt.xticks(rotation=45)
+plt.grid(True, alpha=0.3)
+plt.show()
+
+# Gráfico comparativo de previsões
+plt.figure(figsize=(10,5))
+x = np.arange(len(df_resultados))
+width = 0.35
+
+plt.bar(x - width/2, df_resultados['Preço_Atual'], width, label='Preço Atual')
+plt.bar(x + width/2, df_resultados['Previsão_Próximo_Dia'], width, label='Previsão')
+plt.xlabel('Ação')
+plt.ylabel('Preço')
+plt.title('Preço Atual vs Previsão para Próximo Dia')
+plt.xticks(x, df_resultados.index, rotation=45)
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()
+
+# 6. ANÁLISE DOS RESULTADOS
+print("\n" + "="*70)
+print("ANÁLISE DOS RESULTADOS")
+print("="*70)
+
+# Melhor e pior performance
+melhor_rmse = df_resultados['RMSE'].idxmin()
+pior_rmse = df_resultados['RMSE'].idxmax()
+
+print(f"\nMelhor performance (menor RMSE): {melhor_rmse} - {df_resultados.loc[melhor_rmse, 'RMSE']:.2f}")
+print(f"Pior performance (maior RMSE): {pior_rmse} - {df_resultados.loc[pior_rmse, 'RMSE']:.2f}")
+
+# Ação com maior variação esperada
+maior_altas = df_resultados['Variação_%'].idxmax()
+print(f"Maior alta esperada: {maior_altas} - {df_resultados.loc[maior_altas, 'Variação_%']:+.2f}%")
