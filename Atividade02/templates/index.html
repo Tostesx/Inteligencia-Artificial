@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Previsão de Evasão de Alunos</title>
+</head>
+<body>
+    <div class="titulo"><h1>Preencha os dados do aluno</h1></div>
+    <div class="content">
+        <form action="/predict" method="post">
+        {% for feature in features %}
+        <label for="{{ feature }}">{{ feature }}:</label>
+        <input type="text" id="{{ feature }}" name="{{ feature }}" required><br><br>
+        {% endfor %}
+        <button type="submit">Prever</button>
+    </form>
+    </div>
+    
+</body>
+</html>

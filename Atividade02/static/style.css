@@ -1,0 +1,173 @@
+/* ============================================
+   CSS com tema governo brasileiro alegre
+   SEM SCROLL - Tudo em uma página
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100vh;
+    overflow: hidden;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    background: linear-gradient(145deg, #e0f2e0 0%, #c8e6c9 100%);
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Título principal */
+.titulo {
+    background: #2e7d32;
+    padding: 10px 20px;
+    border-radius: 40px 40px 15px 15px;
+    margin-bottom: 12px;
+    border: 3px solid #ffd700;
+    box-shadow: 0 5px 0 #1b5e20;
+    max-width: 850px;
+    width: 100%;
+    text-align: center;
+}
+
+.titulo h1 {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-shadow: 2px 2px 0 #1b5e20;
+    margin: 0;
+}
+
+/* Container do formulário */
+.content {
+    max-width: 850px;
+    width: 100%;
+    background: white;
+    padding: 15px;
+    border-radius: 30px 10px 30px 10px;
+    box-shadow: 0 12px 0 #b8860b, 0 15px 20px rgba(0,0,0,0.15);
+    border: 2px solid #ffd700;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+}
+
+/* Formulário em grid de 2 colunas */
+form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 20px;
+}
+
+/* Colunas do formulário */
+.form-col {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+/* Labels */
+label {
+    color: #1b5e20;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    border-left: 3px solid #ffd700;
+    padding-left: 8px;
+    margin-top: 5px;
+}
+
+/* Inputs */
+input {
+    width: 100%;
+    padding: 5px 10px;
+    height: 32px;
+    border: 1.5px solid #d4e6d4;
+    border-radius: 25px;
+    font-size: 0.8rem;
+    transition: 0.2s;
+    background: #fafdfa;
+    box-shadow: inset 0 1px 3px rgba(0,40,0,0.05);
+}
+
+input:focus {
+    outline: none;
+    border-color: #ffd700;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
+}
+
+input:hover {
+    border-color: #4caf50;
+}
+
+/* Botão ocupa as duas colunas */
+button {
+    grid-column: span 2;
+    background: #2e7d32;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 30px;
+    width: 100%;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: 0.2s;
+    margin-top: 10px;
+    box-shadow: 0 4px 0 #1b5e20, 0 5px 10px rgba(0,0,0,0.2);
+    border: 2px solid #ffd700;
+}
+
+button:hover {
+    background: #ffd700;
+    color: #1b5e20;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 0 #b8860b, 0 8px 15px rgba(0,0,0,0.25);
+    border-color: #2e7d32;
+}
+
+button:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #b8860b;
+}
+
+/* Responsividade */
+@media (max-width: 700px) {
+    form {
+        grid-template-columns: 1fr;
+        gap: 5px;
+    }
+    
+    button {
+        grid-column: span 1;
+    }
+}
+
+@media (max-height: 600px) {
+    .titulo {
+        padding: 5px 15px;
+    }
+    
+    .titulo h1 {
+        font-size: 1.2rem;
+    }
+    
+    input {
+        height: 28px;
+        font-size: 0.7rem;
+    }
+    
+    label {
+        font-size: 0.65rem;
+    }
+}

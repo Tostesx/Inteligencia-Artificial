@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Resultado da Previsão</title>
+</head>
+<body>
+    <div class="titulo"><h1>Resultado</h1></div>
+    <div class="content">
+        <p><strong>Previsão:</strong> {{ resultado }}</p>
+    <p><strong>Probabilidade de Evasão:</strong> {{ "%.2f"|format(probabilidade*100) }}%</p>
+    
+    <h2>Dados informados:</h2>
+    <ul>
+    {% for key, value in dados.items() %}
+        <li>{{ key }}: {{ value }}</li>
+    {% endfor %}
+    </ul>
+    
+    <a href="/">Nova previsão</a>
+    </div>
+    
+</body>
+</html>
