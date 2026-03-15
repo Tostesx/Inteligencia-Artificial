@@ -27,7 +27,3 @@ Projeto de previsão de séries temporais financeiras utilizando redes neurais L
 | AAPL | XX.XX | XXX.XX | XXX.XX | +X.XX% |
 | ... | ... | ... | ... | ... |
 
-## Como executar
-1. Clone o repositório
-2. Instale dependências: `pip install -r requirements.txt`
-3. Execute o notebook
