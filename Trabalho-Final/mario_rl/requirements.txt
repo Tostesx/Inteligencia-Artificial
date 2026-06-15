@@ -1,0 +1,26 @@
+# ── Dependências principais ─────────────────────────────────────────────────
+# Instale com: pip install -r requirements.txt
+
+# Arcade Learning Environment + Gymnasium
+gymnasium[atari]>=0.29.0
+ale-py>=0.9.0
+
+# ROM do Mario Bros (download automático via shimmy ou ale-import-roms)
+# Se não aparecer o ROM automaticamente, rode:
+#   python -m ale_py.scripts.import_roms <pasta_com_roms>
+# Ou instale os ROMs livres:
+AutoROM[accept-rom-license]>=0.6.0
+
+# Deep Learning
+torch>=2.0.0          # CPU por padrão; para GPU instale a versão correta em pytorch.org
+# torchvision>=0.15.0  # opcional
+
+# Processamento de imagem
+opencv-python>=4.8.0
+numpy>=1.24.0
+
+# Visualização (opcional, necessário para evaluate.py --plot)
+matplotlib>=3.7.0
+
+# Utilitários
+tqdm>=4.66.0          # opcional, para barras de progresso
